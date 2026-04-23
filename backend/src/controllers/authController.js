@@ -30,27 +30,6 @@ const buildAuthResponse = (user) => ({
   user: serializeUser(user),
 });
 
-const getConfiguredAdminSecret = () =>
-  String(process.env.ADMIN_SECRET || process.env.ADMIN_SECRET_KEY || "");
-
-const hasMatchingAdminSecret = (candidateSecret) => {
-  const configuredSecret = getConfiguredAdminSecret();
-  const providedSecret = String(candidateSecret || "");
-
-  if (!configuredSecret || !providedSecret) {
-    return false;
-  }
-
-  const configuredBuffer = Buffer.from(configuredSecret, "utf8");
-  const providedBuffer = Buffer.from(providedSecret, "utf8");
-
-  if (configuredBuffer.length !== providedBuffer.length) {
-    return false;
-  }
-
-  return crypto.timingSafeEqual(configuredBuffer, providedBuffer);
-};
-
 const registerFailedLoginAttempt = async (user) => {
   user.failedLoginAttempts = Number(user.failedLoginAttempts || 0) + 1;
 
@@ -97,7 +76,6 @@ exports.register = async (req, res) => {
   const email = normalizeEmail(req.body.email);
   const password = String(req.body.password || "");
   const phone = normalizePhone(req.body.phone);
-  const adminSecret = String(req.body.adminSecret || "").trim();
   const validationError = validateRegistrationInput({
     name,
     email,
@@ -116,16 +94,6 @@ exports.register = async (req, res) => {
       return res.status(409).json({ message: "An account with this email already exists" });
     }
 
-    if (adminSecret && !getConfiguredAdminSecret()) {
-      return res.status(500).json({
-        message: "Admin registration is not configured on this server",
-      });
-    }
-
-    if (adminSecret && !hasMatchingAdminSecret(adminSecret)) {
-      return res.status(403).json({ message: "Invalid admin secret" });
-    }
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
@@ -133,7 +101,7 @@ exports.register = async (req, res) => {
       email,
       phone,
       password: hashedPassword,
-      role: adminSecret ? "admin" : "user",
+      role: "user",
     });
 
     res.status(201).json({

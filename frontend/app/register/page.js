@@ -26,7 +26,6 @@ export default function Register() {
     countryCode: COUNTRY_CODE_OPTIONS[0].value,
     phoneNumber: "",
     password: "",
-    adminSecret: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -65,7 +64,6 @@ export default function Register() {
         email: normalizedEmail,
         phone,
         password: form.password,
-        adminSecret: form.adminSecret.trim(),
       });
       login(res.data);
       router.replace("/dashboard");
@@ -152,19 +150,6 @@ export default function Register() {
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 required
               />
-              <input
-                className="field"
-                type="password"
-                placeholder="Admin secret (optional)"
-                value={form.adminSecret}
-                onChange={(e) =>
-                  setForm({ ...form, adminSecret: e.target.value })
-                }
-              />
-              <p className="text-xs leading-6 text-[var(--muted)]">
-                Accounts register as standard users by default. Enter the secure
-                admin secret only if you are creating an administrator account.
-              </p>
 
               {error ? (
                 <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">
