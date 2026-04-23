@@ -663,14 +663,7 @@ export default function Inventory() {
           </div>
         ) : null}
 
-        <WorkspaceDock onOpenSettings={() => setIsSettingsOpen(true)} />
-
-        {isSettingsOpen ? (
-          <SettingsPanel
-            onClose={() => setIsSettingsOpen(false)}
-            onAfterSync={() => setRefreshKey((current) => current + 1)}
-          />
-        ) : null}
+      
 
       </main>
     </div>
