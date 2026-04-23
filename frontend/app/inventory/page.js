@@ -663,8 +663,6 @@ export default function Inventory() {
           </div>
         ) : null}
 
-      
-
       </main>
     </div>
   );
