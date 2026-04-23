@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
@@ -187,12 +186,9 @@ export default function SettingsPanel({ onClose }) {
               <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
                 {t(
                   "settings.securityCopy",
-                  "Login and password reset now use captcha for safer access."
+                  "Login uses captcha for safer access."
                 )}
               </p>
-              <Link href="/forgot-password" className="secondary-btn mt-5">
-                {t("settings.resetPassword", "Reset password")}
-              </Link>
             </section>
 
             <section className="rounded-[1.5rem] border border-[var(--border-soft)] bg-white/70 p-5">

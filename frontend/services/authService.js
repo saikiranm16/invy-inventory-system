@@ -6,7 +6,5 @@ export const googleSignIn = (credential) =>
   API.post("/auth/google", { credential });
 export const getCaptcha = () => API.get("/auth/captcha");
 export const getProfile = (token) => API.get("/auth/profile", withAuthConfig(token));
-export const forgotPassword = (data) => API.post("/auth/forgot-password", data);
-export const resetPassword = (data) => API.post("/auth/reset-password", data);
 export const updateProfile = (token, data) =>
   API.put("/auth/profile", data, withAuthConfig(token));

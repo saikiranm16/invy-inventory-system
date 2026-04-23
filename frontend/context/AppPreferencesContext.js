@@ -24,8 +24,7 @@ const translations = {
       security: "Security",
       syncInventory: "Sync demo inventory",
       syncingInventory: "Syncing inventory...",
-      securityCopy: "Login and password reset now use captcha for safer access.",
-      resetPassword: "Reset password",
+      securityCopy: "Login uses captcha for safer access.",
       adminTools: "Admin tools",
       adminToolsCopy:
         "Refresh the starter inventory so new categories and products stay available.",

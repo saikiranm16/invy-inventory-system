@@ -12,10 +12,6 @@ const {
   normalizePhone,
   validateRegistrationInput,
 } = require("../utils/authValidation");
-const {
-  isEmailDeliveryConfigured,
-  sendResetCodeEmail,
-} = require("../utils/emailService");
 
 const serializeUser = (user) => ({
   id: user._id,
@@ -33,21 +29,6 @@ const buildAuthResponse = (user) => ({
   token: generateToken(user._id, user.role),
   user: serializeUser(user),
 });
-
-const validatePasswordInput = (password) => {
-  if (String(password).length < 8) {
-    return "Password must be at least 8 characters long";
-  }
-
-  if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-    return "Password must include at least one letter and one number";
-  }
-
-  return null;
-};
-
-const buildResetCodeHash = (code) =>
-  crypto.createHash("sha256").update(String(code)).digest("hex");
 
 const getConfiguredAdminSecret = () =>
   String(process.env.ADMIN_SECRET || process.env.ADMIN_SECRET_KEY || "");
@@ -284,96 +265,6 @@ exports.googleSignIn = async (req, res) => {
   } catch (err) {
     console.error("Google sign-in error:", err);
     res.status(500).json({ message: "Unable to sign in with Google right now" });
-  }
-};
-
-exports.forgotPassword = async (req, res) => {
-  const email = normalizeEmail(req.body.email);
-
-  if (!isValidEmail(email)) {
-    return res.status(400).json({ message: "Enter a valid email address" });
-  }
-
-  if (!validateCaptchaOrReject(req, res)) {
-    return;
-  }
-
-  if (!isEmailDeliveryConfigured()) {
-    return res.status(503).json({
-      message: "Password reset email is not configured on this server",
-    });
-  }
-
-  try {
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.json({
-        message: "If the email exists, a reset code has been prepared",
-      });
-    }
-
-    const resetCode = String(Math.floor(100000 + Math.random() * 900000));
-    user.resetCodeHash = buildResetCodeHash(resetCode);
-    user.resetCodeExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
-    await user.save();
-
-    await sendResetCodeEmail({
-      to: user.email,
-      name: user.name,
-      resetCode,
-      expiresInMinutes: 15,
-    });
-
-    res.json({
-      message: "If the email exists, a reset code has been sent to Gmail.",
-    });
-  } catch (err) {
-    console.error("Forgot password error:", err);
-    res.status(500).json({ message: "Unable to generate a reset code right now" });
-  }
-};
-
-exports.resetPassword = async (req, res) => {
-  const email = normalizeEmail(req.body.email);
-  const resetCode = String(req.body.resetCode || "").trim();
-  const password = String(req.body.password || "");
-  const passwordError = validatePasswordInput(password);
-
-  if (!isValidEmail(email)) {
-    return res.status(400).json({ message: "Enter a valid email address" });
-  }
-
-  if (!resetCode) {
-    return res.status(400).json({ message: "Reset code is required" });
-  }
-
-  if (passwordError) {
-    return res.status(400).json({ message: passwordError });
-  }
-
-  try {
-    const user = await User.findOne({ email });
-
-    if (
-      !user ||
-      !user.resetCodeHash ||
-      !user.resetCodeExpiresAt ||
-      user.resetCodeExpiresAt.getTime() < Date.now() ||
-      user.resetCodeHash !== buildResetCodeHash(resetCode)
-    ) {
-      return res.status(400).json({ message: "Reset code is invalid or expired" });
-    }
-
-    user.password = await bcrypt.hash(password, 10);
-    user.resetCodeHash = null;
-    user.resetCodeExpiresAt = null;
-    await user.save();
-
-    res.json({ message: "Password reset successful. You can login now." });
-  } catch (err) {
-    console.error("Reset password error:", err);
-    res.status(500).json({ message: "Unable to reset password right now" });
   }
 };
 

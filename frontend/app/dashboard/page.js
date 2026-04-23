@@ -590,14 +590,7 @@ export default function Dashboard() {
                         <span>Tools</span>
                       </button>
                     </>
-                  ) : (
-                    <>
-                      <Link href="/forgot-password" className="dashboard-action-card">
-                        <span className="dashboard-action-icon">PW</span>
-                        <span>Password help</span>
-                      </Link>
-                    </>
-                  )}
+                  ) : null}
                 </div>
 
                 <div className="dashboard-alert-box">

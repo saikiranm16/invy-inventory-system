@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import CaptchaField from "../../components/CaptchaField";
@@ -158,10 +157,7 @@ export default function Login() {
                 disabled={loading}
               />
 
-              <div className="flex items-center justify-between gap-3 text-sm">
-                <Link href="/forgot-password" className="font-semibold text-[var(--accent)]">
-                  Forgot password?
-                </Link>
+              <div className="flex items-center justify-end gap-3 text-sm">
                 <span className="text-[var(--muted)]">
                   Captcha is required for login
                 </span>
